@@ -180,6 +180,7 @@ const DB = (() => {
       return {
         ...m,
         images,
+        media: modelMedia,
         cover: images[0] || firstAny?.url || null,
         coverType: images.length ? "image" : (firstAny?.type || "image"),
         rating_avg: stats.avg,
@@ -297,6 +298,7 @@ const DB = (() => {
       return {
         ...m,
         images,
+        media,
         cover: images[0] || media[0]?.url || null,
         coverType: images.length ? "image" : (media[0]?.type || "image"),
         rating_avg: avg,

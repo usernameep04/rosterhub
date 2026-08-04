@@ -162,6 +162,8 @@ function attachRowHandlers(model) {
     }
   });
 
+  refreshTagEditor(); // conecta los botones ✕ de las etiquetas que ya traía el modelo
+
   // guardar (nombre + etiquetas)
   row.querySelector(".admin-save").addEventListener("click", async (e) => {
     const btn = e.currentTarget;
