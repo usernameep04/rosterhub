@@ -232,4 +232,41 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowRight") lightboxNext();
 });
 
+// ==========================================================================
+// Popup de publicidad
+// ==========================================================================
+// Aparece cada vez que se abre la ficha de un modelo.
+//
+// AD_SHOW_DELAY_MS: cuánto espera antes de mostrarse (deja ver la página
+// un instante primero, se siente menos brusco).
+// AD_MIN_CLOSE_DELAY_MS: si quieres forzar que se vea unos segundos antes
+// de poder cerrarlo, sube este número (en milisegundos). En 0, se puede
+// cerrar de inmediato — más seguro para no chocar con políticas de
+// redes de publicidad contra popups intrusivos.
+
+const AD_SHOW_DELAY_MS = 900;
+const AD_MIN_CLOSE_DELAY_MS = 0;
+
+const adOverlay = document.getElementById("ad-popup-overlay");
+const adCloseBtn = document.getElementById("ad-popup-close");
+
+function showAdPopup() {
+  adOverlay.classList.add("show");
+  adCloseBtn.style.visibility = AD_MIN_CLOSE_DELAY_MS > 0 ? "hidden" : "visible";
+  if (AD_MIN_CLOSE_DELAY_MS > 0) {
+    setTimeout(() => { adCloseBtn.style.visibility = "visible"; }, AD_MIN_CLOSE_DELAY_MS);
+  }
+}
+
+function closeAdPopup() {
+  adOverlay.classList.remove("show");
+}
+
+adCloseBtn.addEventListener("click", closeAdPopup);
+adOverlay.addEventListener("click", (e) => {
+  if (e.target === adOverlay) closeAdPopup();
+});
+
+setTimeout(showAdPopup, AD_SHOW_DELAY_MS);
+
 render();
