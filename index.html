@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roster — Catálogo de Modelos IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-mark"></span>
+      <span class="logo-text">Roster</span>
+    </a>
+    <div class="search-shell">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search-input" type="text" placeholder="Buscar por nombre o etiqueta…" autocomplete="off">
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" id="btn-open-upload">+ Subir nueva/o</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow mono">Catálogo interno · Talento sintético</div>
+    <h1>El roster completo de<br><span>modelos generados con IA.</span></h1>
+    <p>Explora, califica y da seguimiento a cada personaje que la agencia produce. Sube uno nuevo en segundos.</p>
+  </div>
+</section>
+
+<main class="wrap">
+
+  <section class="section" id="top-section">
+    <div class="section-head">
+      <h2>Los más top</h2>
+      <span class="section-tag mono">ordenado por calificación</span>
+    </div>
+    <div id="tag-row" class="tag-row"></div>
+    <div id="grid" class="grid"></div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">Roster · catálogo interno de modelos IA</div>
+</footer>
+
+<!-- ===================== MODAL: SUBIR NUEVA/O ===================== -->
+<div class="modal-overlay" id="upload-overlay" style="display:none;">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Subir nueva/o</h3>
+      <button class="modal-close" id="btn-close-upload">✕</button>
+    </div>
+
+    <form id="upload-form">
+      <div class="field">
+        <label for="f-name">Nombre</label>
+        <input type="text" id="f-name" required placeholder="Ej. Valentina Nova">
+        <div class="duplicate-warning" id="duplicate-warning"></div>
+      </div>
+
+      <div class="field">
+        <label>Fotos y videos</label>
+        <div class="dropzone" id="dropzone">
+          <div>Arrastra archivos aquí o haz clic para elegir</div>
+          <div class="hint">Imágenes y videos, varios a la vez</div>
+          <input type="file" id="f-files" accept="image/*,video/*" multiple>
+        </div>
+        <div class="preview-grid" id="preview-grid"></div>
+      </div>
+
+      <div class="field">
+        <label>Etiquetas</label>
+        <div class="tag-input-wrap">
+          <div class="tag-input-row" id="tag-input-row">
+            <input type="text" id="f-tag-input" placeholder="Escribe y presiona Enter…" autocomplete="off">
+          </div>
+          <div class="tag-suggestions" id="tag-suggestions"></div>
+        </div>
+        <div class="hint">Ej. lifestyle, gaming, fitness, moda · máximo 5</div>
+        <div class="tag-limit-hint" id="tag-limit-hint">Ya llegaste al máximo de 5 etiquetas. Quita una para agregar otra.</div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="f-instagram">Instagram (opcional)</label>
+          <input type="url" id="f-instagram" placeholder="https://instagram.com/…">
+        </div>
+        <div class="field">
+          <label for="f-tiktok">TikTok (opcional)</label>
+          <input type="url" id="f-tiktok" placeholder="https://tiktok.com/@…">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="f-twitter">X / Otra red (opcional)</label>
+        <input type="url" id="f-twitter" placeholder="https://…">
+      </div>
+
+      <div class="modal-error" id="upload-error"></div>
+
+      <button type="submit" class="btn btn-primary btn-block" id="btn-submit-upload">Publicar modelo</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
