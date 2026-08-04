@@ -17,3 +17,15 @@ const SUPABASE_ANON_KEY = "sb_publishable_LKA_eYIeH-pJDDYHWRvSBA_yfPWH8wR";
 const ADMIN_PASSWORD = "Brian-0824";
 
 const COMMUNITY_URL = "";
+
+/*
+  SUBIDA DE VIDEOS
+  =================
+  Ponlo en "false" para permitir solo fotos por ahora (por ejemplo,
+  mientras compras más espacio de almacenamiento en Supabase). Los
+  videos que ya se subieron antes NO se borran — esto solo afecta las
+  subidas nuevas. Cuando quieras volver a permitir videos, ponlo en
+  "true" otra vez.
+*/
+const ALLOW_VIDEO_UPLOADS = false;
+
