@@ -257,6 +257,28 @@ const DB = (() => {
     lsSet(LS_RATINGS, ratings);
   }
 
+  async function demoUpdateModel(id, { name, tags }) {
+    const models = lsGet(LS_MODELS);
+    const idx = models.findIndex(m => m.id === id);
+    if (idx === -1) throw new Error("Modelo no encontrado.");
+    if (name !== undefined) {
+      models[idx].name = name;
+      models[idx].name_normalized = normalizeName(name);
+    }
+    if (tags !== undefined) models[idx].tags = tags;
+    lsSet(LS_MODELS, models);
+  }
+
+  async function demoDeleteModel(id) {
+    lsSet(LS_MODELS, lsGet(LS_MODELS).filter(m => m.id !== id));
+    lsSet(LS_MEDIA, lsGet(LS_MEDIA).filter(m => m.model_id !== id));
+    lsSet(LS_RATINGS, lsGet(LS_RATINGS).filter(r => r.model_id !== id));
+  }
+
+  async function demoDeleteMedia(mediaId) {
+    lsSet(LS_MEDIA, lsGet(LS_MEDIA).filter(m => m.id !== mediaId));
+  }
+
   // ---------- modo REAL (Supabase) ----------
   // Requiere las tablas creadas con schema.sql y un bucket "model-media".
 
@@ -347,6 +369,38 @@ const DB = (() => {
     if (error) throw error;
   }
 
+  function storagePathFromUrl(url) {
+    const marker = "/model-media/";
+    const idx = url.indexOf(marker);
+    return idx === -1 ? null : url.slice(idx + marker.length);
+  }
+
+  async function realUpdateModel(id, { name, tags }) {
+    const patch = {};
+    if (name !== undefined) { patch.name = name; patch.name_normalized = normalizeName(name); }
+    if (tags !== undefined) patch.tags = tags;
+    const { error } = await supabase.from("models").update(patch).eq("id", id);
+    if (error) throw error;
+  }
+
+  async function realDeleteMedia(mediaId) {
+    const { data: row } = await supabase.from("model_media").select("url").eq("id", mediaId).single();
+    const { error } = await supabase.from("model_media").delete().eq("id", mediaId);
+    if (error) throw error;
+    if (row?.url) {
+      const path = storagePathFromUrl(row.url);
+      if (path) await supabase.storage.from("model-media").remove([path]).catch(() => {});
+    }
+  }
+
+  async function realDeleteModel(id) {
+    const { data: mediaRows } = await supabase.from("model_media").select("url").eq("model_id", id);
+    const { error } = await supabase.from("models").delete().eq("id", id);
+    if (error) throw error;
+    const paths = (mediaRows || []).map(r => storagePathFromUrl(r.url)).filter(Boolean);
+    if (paths.length) await supabase.storage.from("model-media").remove(paths).catch(() => {});
+  }
+
   // ---------- API pública ----------
 
   return {
@@ -358,5 +412,8 @@ const DB = (() => {
     createModel: REAL_MODE ? realCreateModel : demoCreateModel,
     addMedia: REAL_MODE ? realAddMedia : demoAddMedia,
     addRating: REAL_MODE ? realAddRating : demoAddRating,
+    updateModel: REAL_MODE ? realUpdateModel : demoUpdateModel,
+    deleteModel: REAL_MODE ? realDeleteModel : demoDeleteModel,
+    deleteMedia: REAL_MODE ? realDeleteMedia : demoDeleteMedia,
   };
 })();
