@@ -62,6 +62,60 @@
     .fab-add span.fab-label { display: none; }
   }
 
+  /* Popup de publicidad */
+  .ad-popup-overlay {
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(6,8,15,0.85);
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .ad-popup-overlay.show { display: flex; }
+  .ad-popup {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    animation: modalIn .18s ease;
+  }
+  .ad-popup-label {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    z-index: 2;
+  }
+  .ad-popup-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: rgba(11,14,26,0.75);
+    color: var(--text);
+    font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ad-popup-close:hover { border-color: var(--accent-b); }
+  .ad-popup-slot {
+    min-height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px 24px;
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: center;
+  }
+
   /* Lightbox */
   .lightbox-overlay {
     position: fixed; inset: 0; z-index: 300;
@@ -152,6 +206,23 @@
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   <span class="fab-label">Agregar fotos/videos</span>
 </button>
+
+<!-- ===================== POPUP DE PUBLICIDAD ===================== -->
+<div class="ad-popup-overlay" id="ad-popup-overlay">
+  <div class="ad-popup">
+    <span class="ad-popup-label mono">PUBLICIDAD</span>
+    <button class="ad-popup-close" id="ad-popup-close" aria-label="Cerrar anuncio">✕</button>
+
+    <!--
+      AQUÍ VA EL CÓDIGO DE TU RED DE PUBLICIDAD (AdSense, Adsterra, Media.net, etc).
+      Pega el script/tag que te den dentro de este div, reemplazando el
+      texto de aviso. No muevas el id="ad-popup-slot", el JS lo usa.
+    -->
+    <div class="ad-popup-slot" id="ad-popup-slot">
+      Espacio publicitario — pega aquí el código de tu red de anuncios
+    </div>
+  </div>
+</div>
 
 <!-- ===================== LIGHTBOX / CARRUSEL ===================== -->
 <div class="lightbox-overlay" id="lightbox-overlay">
