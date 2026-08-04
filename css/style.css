@@ -184,6 +184,7 @@ img, video { max-width: 100%; display: block; }
 
 .btn-block { width: 100%; justify-content: center; }
 .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.btn svg { width: 15px; height: 15px; flex-shrink: 0; }
 
 /* ==========================================================================
    HERO
@@ -641,6 +642,8 @@ img, video { max-width: 100%; display: block; }
 }
 .modal-error.show { display: block; }
 
+#turnstile-widget { display: flex; justify-content: center; }
+
 .toast {
   position: fixed;
   bottom: 24px;
@@ -683,6 +686,8 @@ img, video { max-width: 100%; display: block; }
   .field-row { grid-template-columns: 1fr; }
   .hero { padding: 40px 0 28px; }
   .section { padding: 32px 0; }
+  #btn-community { padding: 10px; }
+  #btn-community .community-label { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
