@@ -16,4 +16,4 @@ const SUPABASE_ANON_KEY = "sb_publishable_LKA_eYIeH-pJDDYHWRvSBA_yfPWH8wR";
 
 const ADMIN_PASSWORD = "Brian-0824";
 
-const COMMUNITY_URL = "";
+const COMMUNITY_URL = "https://t.me/+Wx0PyBrnSxQ5ZmJh";
