@@ -284,7 +284,7 @@ const DB = (() => {
   // Requiere las tablas creadas con schema.sql y un bucket "model-media".
 
   async function realListModels({ search = "", tag = "" } = {}) {
-    let query = supabase.from("models").select("*, model_media(url, type, created_at), model_ratings(stars)");
+    let query = supabase.from("models").select("*, model_media(id, url, type, created_at), model_ratings(stars)");
     if (tag) query = query.contains("tags", [tag]);
     const { data, error } = await query;
     if (error) throw error;
