@@ -99,8 +99,8 @@ async function render() {
           <span class="rating-count mono">(${model.rating_count})</span>
         </div>
         ${hasRated(modelId)
-          ? `<div class="rated-msg">Ya calificaste este modelo ✓</div>`
-          : `<div class="rate-prompt">Califica este modelo:</div>${rateStarsInteractive()}`}
+          ? `<div class="rated-msg">Ya calificaste a esta chica ✓</div>`
+          : `<div class="rate-prompt">Califica a esta chica:</div>${rateStarsInteractive()}`}
       </div>
     </div>
 
