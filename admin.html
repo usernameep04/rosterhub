@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de administrador — Roster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .admin-lock {
+    position: fixed; inset: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg);
+  }
+  .admin-lock-box {
+    width: 100%; max-width: 340px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    text-align: center;
+  }
+  .admin-lock-box h2 { font-size: 18px; margin-bottom: 6px; }
+  .admin-lock-box p { color: var(--text-muted); font-size: 13px; margin-bottom: 18px; }
+  .admin-lock-box input {
+    width: 100%; padding: 10px 12px; margin-bottom: 12px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    color: var(--text); font-size: 14px; text-align: center;
+  }
+  .admin-lock-error { color: var(--danger); font-size: 12px; margin-bottom: 10px; display: none; }
+  .admin-lock-error.show { display: block; }
+
+  #admin-content { display: none; }
+  #admin-content.show { display: block; }
+
+  .admin-toolbar {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
+  }
+  .admin-toolbar input { flex: 1; min-width: 220px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; color: var(--text); font-size: 14px; }
+
+  .admin-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+  .admin-row-head { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+  .admin-thumb { width: 72px; height: 96px; object-fit: cover; border-radius: var(--radius-sm); background: var(--bg); flex-shrink: 0; }
+  .admin-row-info { flex: 1; min-width: 220px; }
+  .admin-name-input {
+    width: 100%; padding: 8px 10px; margin-bottom: 10px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    color: var(--text); font-family: var(--font-display); font-size: 16px; font-weight: 600;
+  }
+  .admin-meta { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
+
+  .admin-tags-editor {
+    display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  }
+  .admin-tags-editor input {
+    flex: 1; min-width: 90px; background: none; border: none; color: var(--text); font-size: 13px; outline: none;
+  }
+  .admin-row-actions { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+  .admin-row-actions .btn { white-space: nowrap; }
+  .btn-danger { color: var(--danger); border-color: var(--border); background: var(--surface); }
+  .btn-danger:hover { border-color: var(--danger); }
+
+  .admin-media-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 8px; margin-top: 16px;
+  }
+  .admin-media-thumb { position: relative; aspect-ratio: 3/4; border-radius: var(--radius-sm); overflow: hidden; background: var(--bg); }
+  .admin-media-thumb img, .admin-media-thumb video { width: 100%; height: 100%; object-fit: cover; }
+  .admin-media-remove {
+    position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%;
+    background: rgba(255,107,107,0.9); color: white; border: none; font-size: 11px;
+  }
+  .admin-save-status { font-size: 11px; color: var(--success); margin-left: 4px; visibility: hidden; }
+  .admin-save-status.show { visibility: visible; }
+  .empty-state { margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<div class="admin-lock" id="admin-lock">
+  <div class="admin-lock-box">
+    <h2>Panel de administrador</h2>
+    <p>Escribe la clave para entrar.</p>
+    <input type="password" id="admin-password-input" placeholder="Clave">
+    <div class="admin-lock-error" id="admin-lock-error">Clave incorrecta.</div>
+    <button class="btn btn-primary btn-block" id="admin-unlock-btn">Entrar</button>
+  </div>
+</div>
+
+<div id="admin-content">
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark"></span>
+        <span class="logo-text">Roster</span>
+      </a>
+      <div class="header-actions" style="margin-left:auto;">
+        <a href="index.html" class="btn btn-ghost">← Ver catálogo</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap" style="padding-top:32px; padding-bottom:60px;">
+    <div class="section-head">
+      <h2>Panel de administrador</h2>
+      <span class="section-tag mono" id="admin-count"></span>
+    </div>
+
+    <div class="admin-toolbar">
+      <input type="text" id="admin-search" placeholder="Buscar modelo por nombre…">
+    </div>
+
+    <div id="admin-list"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
