@@ -10,11 +10,20 @@
 */
 
 const DB = (() => {
-  const REAL_MODE = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+  let REAL_MODE = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
   let supabase = null;
 
   if (REAL_MODE) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    try {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch (err) {
+      console.error(
+        "js/config.js tiene una URL o llave de Supabase inválida. " +
+        "El sitio va a seguir funcionando en modo demo mientras tanto. Detalle:",
+        err
+      );
+      REAL_MODE = false;
+    }
   }
 
   // ---------- límites del modo DEMO ----------

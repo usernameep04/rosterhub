@@ -11,5 +11,5 @@
   y pega aquí la URL y la llave "anon public" que te den.
 */
 
-const SUPABASE_URL = "sb_publishable_LKA_eYIeH-pJDDYHWRvSBA_yfPWH8wR";
-const SUPABASE_ANON_KEY = "sb_secret_oUiwcPiZfg7O5vt46xzyDQ_L7Q03ksg";
+const SUPABASE_URL = "";
+const SUPABASE_ANON_KEY = "";
