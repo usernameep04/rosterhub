@@ -73,17 +73,15 @@ async function render() {
   const content = document.getElementById("content");
 
   if (!modelId) {
-    content.innerHTML = `<div class="empty-state">No se especificó una chica.</div>`;
+    content.innerHTML = `<div class="empty-state">No se especificó un modelo.</div>`;
     return;
   }
 
   const model = await DB.getModel(modelId);
   if (!model) {
-    content.innerHTML = `<div class="empty-state">No se encontró esta chica.</div>`;
+    content.innerHTML = `<div class="empty-state">No se encontró este modelo.</div>`;
     return;
   }
-
-  document.title = `${model.name} — Roster Hub`;
 
   content.innerHTML = `
     <a href="index.html" class="back-link">← Catálogo</a>
