@@ -13,3 +13,5 @@
 
 const SUPABASE_URL = "https://mbuabdwfncctdnrizyzj.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_LKA_eYIeH-pJDDYHWRvSBA_yfPWH8wR";
+
+const ADMIN_PASSWORD = "Brian-0824";
