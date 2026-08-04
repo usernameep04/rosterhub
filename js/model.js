@@ -21,6 +21,21 @@ function starsSVG(fillCount, total = 5) {
   return html;
 }
 
+function updateSEOTags(model) {
+  const tagsText = (model.tags || []).map(t => `#${t}`).join(" ");
+  const description = `Fotos y videos de ${model.name}, modelo de IA${tagsText ? " — " + tagsText : ""}. Calificación ${model.rating_avg.toFixed(1)}★ (${model.rating_count}).`;
+  const pageUrl = window.location.href;
+
+  document.getElementById("meta-description").setAttribute("content", description);
+  document.getElementById("meta-og-title").setAttribute("content", `${model.name} — Roster`);
+  document.getElementById("meta-og-description").setAttribute("content", description);
+  document.getElementById("meta-og-url").setAttribute("content", pageUrl);
+  document.getElementById("meta-canonical").setAttribute("href", pageUrl);
+  if (model.cover) {
+    document.getElementById("meta-og-image").setAttribute("content", model.cover);
+  }
+}
+
 function rateStarsInteractive() {
   let html = '<span class="rate-stars" id="rate-stars">';
   for (let i = 1; i <= 5; i++) {
@@ -73,17 +88,18 @@ async function render() {
   const content = document.getElementById("content");
 
   if (!modelId) {
-    content.innerHTML = `<div class="empty-state">No se especificó una chica.</div>`;
+    content.innerHTML = `<div class="empty-state">No se especificó un modelo.</div>`;
     return;
   }
 
   const model = await DB.getModel(modelId);
   if (!model) {
-    content.innerHTML = `<div class="empty-state">No se encontró esta chica.</div>`;
+    content.innerHTML = `<div class="empty-state">No se encontró este modelo.</div>`;
     return;
   }
 
-  document.title = `${model.name} — Roster Hub`;
+  document.title = `${model.name} — Roster`;
+  updateSEOTags(model);
 
   content.innerHTML = `
     <a href="index.html" class="back-link">← Catálogo</a>
@@ -101,8 +117,8 @@ async function render() {
           <span class="rating-count mono">(${model.rating_count})</span>
         </div>
         ${hasRated(modelId)
-          ? `<div class="rated-msg">Ya calificaste a esta chica ✓</div>`
-          : `<div class="rate-prompt">Califica a esta chica:</div>${rateStarsInteractive()}`}
+          ? `<div class="rated-msg">Ya calificaste este modelo ✓</div>`
+          : `<div class="rate-prompt">Califica este modelo:</div>${rateStarsInteractive()}`}
       </div>
     </div>
 
@@ -155,11 +171,20 @@ document.getElementById("fab-add").addEventListener("click", () => {
   document.getElementById("add-media-input").click();
 });
 
+if (typeof ALLOW_VIDEO_UPLOADS !== "undefined" && !ALLOW_VIDEO_UPLOADS) {
+  document.getElementById("add-media-input").accept = "image/*";
+}
+
 document.getElementById("add-media-input").addEventListener("change", async (e) => {
-  const files = Array.from(e.target.files).filter(f => f.type.startsWith("image/") || f.type.startsWith("video/"));
-  if (files.length === 0) return;
+  const { kept, blockedVideos } = filterAllowedFiles(e.target.files);
+  if (blockedVideos > 0) {
+    showToast(`Los videos están desactivados por ahora — se agregaron solo las fotos (${blockedVideos} video(s) omitido(s)).`);
+  }
+  if (kept.length === 0) { e.target.value = ""; return; }
+
   try {
-    await DB.addMedia(modelId, files);
+    const compressed = await compressFiles(kept);
+    await DB.addMedia(modelId, compressed);
     showToast("Archivos agregados ✓");
     render();
   } catch (err) {

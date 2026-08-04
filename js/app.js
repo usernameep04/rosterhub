@@ -116,6 +116,35 @@ document.getElementById("search-input").addEventListener("input", (e) => {
 });
 
 // ==========================================================================
+// CAPTCHA (Cloudflare Turnstile)
+// ==========================================================================
+// Si TURNSTILE_SITE_KEY está vacío en config.js, no se muestra ni se exige
+// nada (queda igual que antes). En cuanto pongas tu Site Key ahí, el
+// widget aparece solo y el botón de publicar no se habilita hasta que la
+// persona lo resuelva.
+
+let turnstileWidgetId = null;
+let turnstileToken = "";
+
+window.onTurnstileLoad = function () {
+  if (!TURNSTILE_SITE_KEY) return;
+  document.getElementById("turnstile-field").style.display = "block";
+  turnstileWidgetId = turnstile.render("#turnstile-widget", {
+    sitekey: TURNSTILE_SITE_KEY,
+    callback: (token) => { turnstileToken = token; },
+    "expired-callback": () => { turnstileToken = ""; },
+    "error-callback": () => { turnstileToken = ""; },
+  });
+};
+
+function resetTurnstile() {
+  turnstileToken = "";
+  if (turnstileWidgetId !== null && window.turnstile) {
+    turnstile.reset(turnstileWidgetId);
+  }
+}
+
+// ==========================================================================
 // Modal de subida
 // ==========================================================================
 
@@ -141,6 +170,7 @@ function closeModal() {
   document.getElementById("duplicate-warning").classList.remove("show");
   document.getElementById("upload-error").classList.remove("show");
   hideTagSuggestions();
+  resetTurnstile();
 }
 
 document.getElementById("btn-open-upload").addEventListener("click", openModal);
@@ -175,6 +205,11 @@ document.getElementById("f-name").addEventListener("input", (e) => {
 const dropzone = document.getElementById("dropzone");
 const fileInput = document.getElementById("f-files");
 
+if (typeof ALLOW_VIDEO_UPLOADS !== "undefined" && !ALLOW_VIDEO_UPLOADS) {
+  fileInput.accept = "image/*";
+  document.getElementById("dropzone-hint").textContent = "Solo fotos por ahora (videos desactivados temporalmente)";
+}
+
 dropzone.addEventListener("click", () => fileInput.click());
 dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("drag"); });
 dropzone.addEventListener("dragleave", () => dropzone.classList.remove("drag"));
@@ -186,12 +221,14 @@ dropzone.addEventListener("drop", (e) => {
 fileInput.addEventListener("change", (e) => addFiles(e.target.files));
 
 function addFiles(fileList) {
-  for (const file of fileList) {
-    if (file.type.startsWith("image/") || file.type.startsWith("video/")) {
-      selectedFiles.push(file);
-    }
+  const { kept, blockedVideos } = filterAllowedFiles(fileList);
+  if (blockedVideos > 0) {
+    showToast(`Los videos están desactivados por ahora — se agregaron solo las fotos (${blockedVideos} video(s) omitido(s)).`);
   }
-  renderPreviewGrid();
+  compressFiles(kept).then(compressed => {
+    selectedFiles.push(...compressed);
+    renderPreviewGrid();
+  });
 }
 
 function renderPreviewGrid() {
@@ -333,6 +370,11 @@ form.addEventListener("submit", async (e) => {
     errorEl.classList.add("show");
     return;
   }
+  if (TURNSTILE_SITE_KEY && !turnstileToken) {
+    errorEl.textContent = "Completa la verificación (el cuadro de \"no soy un robot\") antes de publicar.";
+    errorEl.classList.add("show");
+    return;
+  }
 
   const socials = {};
   const ig = document.getElementById("f-instagram").value.trim();
@@ -390,6 +432,24 @@ function tickCardRotation() {
 }
 
 setInterval(tickCardRotation, 4000);
+
+// ==========================================================================
+// Botón de comunidad (Discord/Telegram)
+// ==========================================================================
+
+const communityBtn = document.getElementById("btn-community");
+if (typeof COMMUNITY_URL !== "undefined" && COMMUNITY_URL) {
+  communityBtn.href = COMMUNITY_URL;
+  communityBtn.style.display = "inline-flex";
+
+  const urlLower = COMMUNITY_URL.toLowerCase();
+  const isTelegram = urlLower.includes("t.me") || urlLower.includes("telegram");
+  const isDiscord = urlLower.includes("discord");
+
+  document.getElementById("icon-telegram").style.display = isTelegram ? "block" : "none";
+  document.getElementById("icon-discord").style.display = isDiscord ? "block" : "none";
+  document.getElementById("icon-generic").style.display = (isTelegram || isDiscord) ? "none" : "block";
+}
 
 // ==========================================================================
 // Init
