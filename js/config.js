@@ -5,6 +5,6 @@ const TURNSTILE_SITE_KEY = ""; // vacío = sin captcha, como lo dejamos
 
 const ADMIN_PASSWORD = "Brian-0824"; // la que ya pusiste
 
-const COMMUNITY_URL = "t.me/+Wx0PyBrnSxQ5ZmJh"; // pega aquí el link de tu canal cuando lo tengas
+const COMMUNITY_URL = "https://t.me/+Wx0PyBrnSxQ5ZmJh"; // pega aquí el link de tu canal cuando lo tengas
 
 const ALLOW_VIDEO_UPLOADS = false; // false = solo fotos por ahora
