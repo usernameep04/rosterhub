@@ -23,7 +23,7 @@ function starsSVG(fillCount, total = 5) {
 
 function updateSEOTags(model) {
   const tagsText = (model.tags || []).map(t => `#${t}`).join(" ");
-  const description = `Fotos y videos de ${model.name}, modelo de IA${tagsText ? " — " + tagsText : ""}. Calificación ${model.rating_avg.toFixed(1)}★ (${model.rating_count}).`;
+  const description = `Fotos y videos de ${model.name}, Chica Only${tagsText ? " — " + tagsText : ""}. Calificación ${model.rating_avg.toFixed(1)}★ (${model.rating_count}).`;
   const pageUrl = window.location.href;
 
   document.getElementById("meta-description").setAttribute("content", description);
