@@ -27,7 +27,7 @@ function updateSEOTags(model) {
   const pageUrl = window.location.href;
 
   document.getElementById("meta-description").setAttribute("content", description);
-  document.getElementById("meta-og-title").setAttribute("content", `${model.name} — Roster`);
+  document.getElementById("meta-og-title").setAttribute("content", `${model.name} — Roster Hub`);
   document.getElementById("meta-og-description").setAttribute("content", description);
   document.getElementById("meta-og-url").setAttribute("content", pageUrl);
   document.getElementById("meta-canonical").setAttribute("href", pageUrl);
