@@ -260,3 +260,17 @@ document.addEventListener("keydown", (e) => {
 });
 
 render();
+
+document.getElementById("btn-share").addEventListener("click", async () => {
+  const shareData = {
+    title: document.title,
+    text: `Mira este modelo en Roster`,
+    url: window.location.href,
+  };
+  if (navigator.share) {
+    try { await navigator.share(shareData); } catch (err) { /* el usuario canceló, no pasa nada */ }
+  } else {
+    await navigator.clipboard.writeText(window.location.href);
+    showToast("Link copiado ✓");
+  }
+});
