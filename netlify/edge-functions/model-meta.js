@@ -45,8 +45,8 @@ export default async (request, context) => {
     const tagsText = (model.tags || []).map((t) => `#${t}`).join(" ");
     const description =
       `Todo el contenido  de ${model.name}, gratis${tagsText ? " — " + tagsText : ""}. ` +
-      `Calificación ${avg.toFixed(1)}★ (${count}).`;
-    const title = `${model.name} — Roster`;
+      `${avg.toFixed(1)}★ (${count}).`;
+    const title = `${model.name} — Roster Hub`;
 
     return new HTMLRewriter()
       .on("title", setText(title))
