@@ -1,3 +1,7 @@
 [[edge_functions]]
   path = "/model.html"
   function = "model-meta"
+
+[[edge_functions]]
+  path = "/m/*"
+  function = "model-meta"
