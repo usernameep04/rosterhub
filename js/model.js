@@ -23,11 +23,11 @@ function starsSVG(fillCount, total = 5) {
 
 function updateSEOTags(model) {
   const tagsText = (model.tags || []).map(t => `#${t}`).join(" ");
-  const description = `Fotos y videos de ${model.name}, Chica Only${tagsText ? " — " + tagsText : ""}. Calificación ${model.rating_avg.toFixed(1)}★ (${model.rating_count}).`;
+  const description = `Fotos y videos de ${model.name}, modelo de IA${tagsText ? " — " + tagsText : ""}. Calificación ${model.rating_avg.toFixed(1)}★ (${model.rating_count}).`;
   const pageUrl = window.location.href;
 
   document.getElementById("meta-description").setAttribute("content", description);
-  document.getElementById("meta-og-title").setAttribute("content", `${model.name} — Roster Hub`);
+  document.getElementById("meta-og-title").setAttribute("content", `${model.name} — Roster`);
   document.getElementById("meta-og-description").setAttribute("content", description);
   document.getElementById("meta-og-url").setAttribute("content", pageUrl);
   document.getElementById("meta-canonical").setAttribute("href", pageUrl);
@@ -67,8 +67,12 @@ function hasRated(id) {
 }
 
 const params = new URLSearchParams(window.location.search);
-const modelId = params.get("id");
-let currentModelName = "este modelo";
+let modelId = params.get("id");
+let modelSlug = null;
+if (!modelId) {
+  const pathMatch = window.location.pathname.match(/^\/m\/([^/]+)\/?$/);
+  if (pathMatch) modelSlug = decodeURIComponent(pathMatch[1]);
+}
 
 function socialLinks(socials) {
   if (!socials) return "";
@@ -88,19 +92,19 @@ function galleryItem(m, i) {
 async function render() {
   const content = document.getElementById("content");
 
-  if (!modelId) {
-    content.innerHTML = `<div class="empty-state">No se especificó una chica.</div>`;
+  if (!modelId && !modelSlug) {
+    content.innerHTML = `<div class="empty-state">No se especificó un modelo.</div>`;
     return;
   }
 
-  const model = await DB.getModel(modelId);
+  const model = modelId ? await DB.getModel(modelId) : await DB.getModelBySlug(modelSlug);
   if (!model) {
-    content.innerHTML = `<div class="empty-state">No se encontró esta chica.</div>`;
+    content.innerHTML = `<div class="empty-state">No se encontró este modelo.</div>`;
     return;
   }
+  modelId = model.id; // normaliza: de aquí en adelante siempre usamos el id real, venga por link viejo o por slug
 
-  document.title = `${model.name} — Roster Hub`;
-  currentModelName = model.name;
+  document.title = `${model.name} — Roster`;
   updateSEOTags(model);
 
   content.innerHTML = `
@@ -119,8 +123,8 @@ async function render() {
           <span class="rating-count mono">(${model.rating_count})</span>
         </div>
         ${hasRated(modelId)
-          ? `<div class="rated-msg">Ya calificaste a esta chica ✓</div>`
-          : `<div class="rate-prompt">Califica a esta chica:</div>${rateStarsInteractive()}`}
+          ? `<div class="rated-msg">Ya calificaste este modelo ✓</div>`
+          : `<div class="rate-prompt">Califica este modelo:</div>${rateStarsInteractive()}`}
       </div>
     </div>
 
@@ -262,17 +266,3 @@ document.addEventListener("keydown", (e) => {
 });
 
 render();
-
-document.getElementById("btn-share").addEventListener("click", async () => {
-  const shareData = {
-    title: document.title,
-    text: `Mira todo el contenido de ${currentModelName} gratis en Roster Hub:`,
-    url: window.location.href,
-  };
-  if (navigator.share) {
-    try { await navigator.share(shareData); } catch (err) { /* el usuario canceló, no pasa nada */ }
-  } else {
-    await navigator.clipboard.writeText(window.location.href);
-    showToast("Link copiado ✓");
-  }
-});
