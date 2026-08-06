@@ -68,6 +68,7 @@ function hasRated(id) {
 
 const params = new URLSearchParams(window.location.search);
 const modelId = params.get("id");
+let currentModelName = "este modelo";
 
 function socialLinks(socials) {
   if (!socials) return "";
@@ -98,7 +99,8 @@ async function render() {
     return;
   }
 
-  document.title = `${model.name} — Roster`;
+  document.title = `${model.name} — Roster Hub`;
+  currentModelName = model.name;
   updateSEOTags(model);
 
   content.innerHTML = `
@@ -264,7 +266,7 @@ render();
 document.getElementById("btn-share").addEventListener("click", async () => {
   const shareData = {
     title: document.title,
-    text: `Mira este modelo en Roster`,
+    text: `Mira todo el contenido de ${currentModelName} en Roster Hub`,
     url: window.location.href,
   };
   if (navigator.share) {
