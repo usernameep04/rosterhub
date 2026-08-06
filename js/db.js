@@ -56,6 +56,18 @@ const DB = (() => {
       .trim();
   }
 
+  // convierte el nombre en algo apto para una URL, ej. "Valentina Nova" -> "valentina-nova"
+  function slugify(name) {
+    return (
+      name
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 60) || "modelo"
+    );
+  }
+
   // distancia de Levenshtein simple, para detectar nombres "parecidos"
   function levenshtein(a, b) {
     const m = a.length, n = b.length;
@@ -208,6 +220,11 @@ const DB = (() => {
     return { ...model, media, rating_avg: stats.avg, rating_count: stats.count };
   }
 
+  async function demoGetModelBySlug(slug) {
+    const match = lsGet(LS_MODELS).find(m => m.slug === slug);
+    return match ? demoGetModel(match.id) : null;
+  }
+
   async function demoFindSimilar(name) {
     const models = lsGet(LS_MODELS);
     return models.filter(m => isSimilarName(m.name, name));
@@ -220,6 +237,14 @@ const DB = (() => {
     return Array.from(set).sort();
   }
 
+  async function demoEnsureUniqueSlug(name) {
+    const base = slugify(name);
+    const existing = new Set(lsGet(LS_MODELS).map(m => m.slug).filter(Boolean));
+    let slug = base, n = 2;
+    while (existing.has(slug)) { slug = `${base}-${n}`; n++; }
+    return slug;
+  }
+
   async function demoCreateModel({ name, tags, socials, files }) {
     files.forEach(assertFileSizeOk);
 
@@ -227,8 +252,9 @@ const DB = (() => {
     const media = lsGet(LS_MEDIA);
     const id = uid();
     const now = Date.now();
+    const slug = await demoEnsureUniqueSlug(name);
 
-    models.push({ id, name, name_normalized: normalizeName(name), tags, socials, created_at: now });
+    models.push({ id, name, name_normalized: normalizeName(name), slug, tags, socials, created_at: now });
 
     for (const file of files) {
       const url = await fileToDataURL(file);
@@ -323,6 +349,21 @@ const DB = (() => {
     return { ...data, media, rating_avg: avg, rating_count: count };
   }
 
+  async function realGetModelBySlug(slug) {
+    const { data, error } = await supabase.from("models").select("id").eq("slug", slug).single();
+    if (error || !data) return null;
+    return realGetModel(data.id);
+  }
+
+  async function realEnsureUniqueSlug(name) {
+    const base = slugify(name);
+    const { data } = await supabase.from("models").select("slug").ilike("slug", `${base}%`);
+    const existing = new Set((data || []).map(r => r.slug).filter(Boolean));
+    let slug = base, n = 2;
+    while (existing.has(slug)) { slug = `${base}-${n}`; n++; }
+    return slug;
+  }
+
   async function realFindSimilar(name) {
     const { data, error } = await supabase.from("models").select("id, name");
     if (error) throw error;
@@ -347,9 +388,10 @@ const DB = (() => {
   }
 
   async function realCreateModel({ name, tags, socials, files }) {
+    const slug = await realEnsureUniqueSlug(name);
     const { data, error } = await supabase
       .from("models")
-      .insert({ name, name_normalized: normalizeName(name), tags, socials })
+      .insert({ name, name_normalized: normalizeName(name), slug, tags, socials })
       .select()
       .single();
     if (error) throw error;
@@ -409,6 +451,7 @@ const DB = (() => {
     mode: REAL_MODE ? "real" : "demo",
     listModels: REAL_MODE ? realListModels : demoListModels,
     getModel: REAL_MODE ? realGetModel : demoGetModel,
+    getModelBySlug: REAL_MODE ? realGetModelBySlug : demoGetModelBySlug,
     findSimilarNames: REAL_MODE ? realFindSimilar : demoFindSimilar,
     getAllTags: REAL_MODE ? realGetAllTags : demoGetAllTags,
     createModel: REAL_MODE ? realCreateModel : demoCreateModel,

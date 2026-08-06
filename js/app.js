@@ -37,9 +37,10 @@ function cardTemplate(model, rank) {
   const mediaTag = model.coverType === "video"
     ? `<video src="${model.cover}" muted playsinline loop autoplay></video>`
     : `<img class="card-photo" src="${model.cover || ''}" alt="${escapeHTML(model.name)}" loading="lazy" data-index="0" ${imagesAttr}>`;
+  const href = model.slug ? `/m/${encodeURIComponent(model.slug)}` : `model.html?id=${model.id}`;
 
   return `
-    <a class="card" href="model.html?id=${model.id}">
+    <a class="card" href="${href}">
       <div class="card-media">
         ${rank ? `<span class="card-rank mono">#${rank}</span>` : ""}
         ${model.cover ? mediaTag : ""}
@@ -198,12 +199,6 @@ document.getElementById("f-name").addEventListener("input", (e) => {
       warnEl.classList.remove("show");
     }
   }, 350);
-});
-
-// Pone mayúscula la primera letra de cada palabra del nombre
-
-document.getElementById("f-name").addEventListener("blur", (e) => {
-  e.target.value = e.target.value.toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase());
 });
 
 // ---- dropzone de archivos ----
