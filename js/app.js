@@ -201,6 +201,11 @@ document.getElementById("f-name").addEventListener("input", (e) => {
   }, 350);
 });
 
+// Pone mayúscula la primera letra de cada palabra del nombre
+document.getElementById("f-name").addEventListener("blur", (e) => {
+  e.target.value = e.target.value.toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase());
+});
+
 // ---- dropzone de archivos ----
 
 const dropzone = document.getElementById("dropzone");

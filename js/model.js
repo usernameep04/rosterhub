@@ -73,6 +73,7 @@ if (!modelId) {
   const pathMatch = window.location.pathname.match(/^\/m\/([^/]+)\/?$/);
   if (pathMatch) modelSlug = decodeURIComponent(pathMatch[1]);
 }
+let currentModelName = "este modelo";
 
 function socialLinks(socials) {
   if (!socials) return "";
@@ -105,6 +106,7 @@ async function render() {
   modelId = model.id; // normaliza: de aquí en adelante siempre usamos el id real, venga por link viejo o por slug
 
   document.title = `${model.name} — Roster`;
+  currentModelName = model.name;
   updateSEOTags(model);
 
   content.innerHTML = `
@@ -263,6 +265,24 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeLightbox();
   if (e.key === "ArrowLeft") lightboxPrev();
   if (e.key === "ArrowRight") lightboxNext();
+});
+
+// ==========================================================================
+// Botón de compartir
+// ==========================================================================
+
+document.getElementById("btn-share").addEventListener("click", async () => {
+  const shareData = {
+    title: document.title,
+    text: `Mira a ${currentModelName} en Roster`,
+    url: window.location.href,
+  };
+  if (navigator.share) {
+    try { await navigator.share(shareData); } catch (err) { /* el usuario canceló, no pasa nada */ }
+  } else {
+    await navigator.clipboard.writeText(window.location.href);
+    showToast("Link copiado ✓");
+  }
 });
 
 render();
