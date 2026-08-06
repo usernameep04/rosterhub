@@ -15,13 +15,18 @@ function setText(value) {
 export default async (request, context) => {
   const url = new URL(request.url);
   const id = url.searchParams.get("id");
+  const pathMatch = url.pathname.match(/^\/m\/([^/]+)\/?$/);
+  const slug = pathMatch ? decodeURIComponent(pathMatch[1]) : null;
   const response = await context.next();
 
-  if (!id) return response;
+  if (!id && !slug) return response;
 
   try {
+    const filter = id
+      ? `id=eq.${encodeURIComponent(id)}`
+      : `slug=eq.${encodeURIComponent(slug)}`;
     const apiUrl =
-      `${SUPABASE_URL}/rest/v1/models?id=eq.${encodeURIComponent(id)}` +
+      `${SUPABASE_URL}/rest/v1/models?${filter}` +
       `&select=name,tags,model_media(url,type),model_ratings(stars)`;
 
     const res = await fetch(apiUrl, {
@@ -44,9 +49,9 @@ export default async (request, context) => {
 
     const tagsText = (model.tags || []).map((t) => `#${t}`).join(" ");
     const description =
-      `Todo el contenido  de ${model.name} gratis${tagsText ? " — " + tagsText : ""}. ` +
-      `${avg.toFixed(1)}★ (${count}).`;
-    const title = `${model.name} — Roster Hub`;
+      `Fotos y videos de ${model.name}, modelo de IA${tagsText ? " — " + tagsText : ""}. ` +
+      `Calificación ${avg.toFixed(1)}★ (${count}).`;
+    const title = `${model.name} — Roster`;
 
     return new HTMLRewriter()
       .on("title", setText(title))
