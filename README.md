@@ -28,6 +28,12 @@ Esto hace que todos los que entren al sitio vean el mismo catálogo.
    del archivo `schema.sql` (incluido en esta carpeta) y dale **Run**.
 3. Ve a **Storage**, crea un bucket nuevo llamado exactamente
    `model-media`, márcalo como **público**.
+   - **Importante:** "público" solo permite *leer* los archivos. Para
+     que también se puedan *subir*, ve al **SQL Editor** y corre el
+     bloque de permisos de Storage que está al final de `schema.sql`
+     (dos policies para `storage.objects`). Si ya corriste `schema.sql`
+     antes de esta actualización, solo corre ese bloque final, no hace
+     falta repetir todo.
 4. Ve a **Project Settings > API**. Copia:
    - **Project URL**
    - **anon public key**
@@ -53,17 +59,101 @@ Recomendado: **[Vercel](https://vercel.com)** o **[Netlify](https://netlify.com)
 - Te da un link público (ej. `roster-cliente.vercel.app`) que puedes
   compartir con quien tú decidas.
 
+## Videos desactivados temporalmente / compresión de fotos
+
+En `js/config.js`:
+
+```js
+const ALLOW_VIDEO_UPLOADS = false; // true para volver a permitir videos
+```
+
+Mientras esté en `false`, el formulario de subida y el botón "Agregar
+fotos/videos" solo aceptan imágenes — ayuda a que no se llene el
+almacenamiento de Supabase mientras compras más espacio. Los videos que
+ya estaban subidos no se tocan.
+
+Además, **todas las fotos que se suban se comprimen automáticamente en
+el navegador antes de mandarse** (se ajustan a un máximo de 1600px de
+lado más largo y se comprimen a calidad ~85%). En la práctica no se
+nota diferencia a simple vista, pero el archivo pesa mucho menos —
+esto ya está activo siempre, no hace falta prenderlo. Se puede ajustar
+en `js/media-utils.js` (`IMAGE_MAX_DIMENSION` y `IMAGE_JPEG_QUALITY`)
+si algún día quieres más o menos compresión.
+
+## Vista previa al compartir un link de modelo (título/foto correctos)
+
+Cuando compartes un link de un modelo en WhatsApp/Telegram/Facebook, esas
+apps no ejecutan JavaScript — solo leen el HTML tal como llega del
+servidor. Por eso hay una función especial (`netlify/edge-functions/model-meta.js`
++ `netlify.toml`) que arma el título y la vista previa correctos *antes*
+de que la página llegue a esas apps, consultando directo a Supabase.
+
+No necesitas configurar nada extra — ya tiene tu URL y llave de Supabase
+adentro (las mismas de `js/config.js`). Si algún día cambias de proyecto
+de Supabase, actualiza esos dos valores también en ese archivo.
+
+## Links bonitos para cada modelo (opcional, ya activo)
+
+Los modelos que subas **de ahora en adelante** obtienen automáticamente
+un link corto tipo:
+
+```
+https://tusitio.netlify.app/m/valentina-nova
+```
+
+en vez de `model.html?id=a1b2c3...`. Se arma solo a partir del nombre —
+no tienes que escribir nada. Si dos modelos se llaman parecido, el
+segundo queda como `valentina-nova-2`, automático también.
+
+**Los links viejos (`model.html?id=...`) que ya compartiste siguen
+funcionando exactamente igual, para siempre** — no se rompe nada de lo
+que ya está afuera. Los modelos que ya tenías subidos antes de este
+cambio simplemente no tienen link bonito (se quedan con el link largo),
+a menos que los vuelvas a subir.
+
+Esto necesita 3 cosas además del código: el archivo `_redirects` en la
+raíz del proyecto, y las columnas nuevas de `schema.sql` corridas en
+Supabase (si usas la base de datos real).
+
+## Panel de administrador
+
+Entra por `admin.html` (ej. `tusitio.com/admin.html`). Pide una clave
+simple para entrar — cámbiala en `js/config.js`:
+
+```js
+const ADMIN_PASSWORD = "tu-clave-aqui";
+```
+
+Desde ahí puedes:
+- Cambiar el nombre y las etiquetas de cualquier modelo.
+- Borrar fotos/videos sueltos.
+- Borrar un modelo completo (con todas sus fotos y calificaciones).
+
+**Importante sobre seguridad:** esta clave solo evita que alguien casual
+la encuentre — no es una protección robusta como un login de verdad,
+porque el sitio no tiene servidor propio todavía. No compartas el link
+de `admin.html` públicamente. Cuando agregues login (ver sección de
+Supabase Auth arriba), esto se puede reemplazar por una cuenta de
+administrador real y quedará mucho más protegido.
+
+Si ya conectaste la base de datos real, asegúrate de haber corrido la
+versión más reciente de `schema.sql` — se agregaron los permisos para
+editar y borrar (antes solo se podía leer y subir).
+
 ## Estructura del proyecto
 
 ```
 index.html          → página principal (buscador, top modelos, subir)
 model.html           → ficha de un modelo (galería, calificación)
+admin.html           → panel de administrador (editar/borrar)
 css/style.css        → todos los estilos
-js/config.js          → aquí van tus llaves de Supabase
+js/config.js          → aquí van tus llaves de Supabase, Turnstile y la clave de admin
+js/media-utils.js     → filtra videos (si están desactivados) y comprime fotos
 js/db.js              → toda la lógica de datos (demo y real, en un solo lugar)
 js/app.js             → lógica de la página principal
 js/model.js           → lógica de la ficha de modelo
-schema.sql            → tablas para pegar en Supabase
+js/admin.js           → lógica del panel de administrador
+schema.sql            → tablas y permisos para pegar en Supabase
 ```
 
 ## Sobre "quién puede subir" mientras no hay login
