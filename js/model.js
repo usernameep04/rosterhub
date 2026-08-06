@@ -266,7 +266,7 @@ render();
 document.getElementById("btn-share").addEventListener("click", async () => {
   const shareData = {
     title: document.title,
-    text: `Mira todo el contenido de ${currentModelName} en Roster Hub`,
+    text: `Mira todo el contenido de ${currentModelName} gratis en Roster Hub:`,
     url: window.location.href,
   };
   if (navigator.share) {
