@@ -274,7 +274,7 @@ document.addEventListener("keydown", (e) => {
 document.getElementById("btn-share").addEventListener("click", async () => {
   const shareData = {
     title: document.title,
-    text: `Mira a ${currentModelName} en Roster`,
+    text: `Mira todo el contenido de ${currentModelName} gratis en Roster Hub`,
     url: window.location.href,
   };
   if (navigator.share) {
