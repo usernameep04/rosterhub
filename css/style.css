@@ -693,3 +693,32 @@ img, video { max-width: 100%; display: block; }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+.search-suggestions {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  z-index: 30;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.search-suggestions.show { display: block; }
+.search-suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 14px;
+}
+.search-suggestion-item:hover { background: var(--surface); }
+.search-suggestion-item img {
+  width: 32px; height: 42px; object-fit: cover; border-radius: 4px; flex-shrink: 0; background: var(--bg);
+}
