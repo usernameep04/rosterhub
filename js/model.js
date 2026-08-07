@@ -23,7 +23,7 @@ function starsSVG(fillCount, total = 5) {
 
 function updateSEOTags(model) {
   const tagsText = (model.tags || []).map(t => `#${t}`).join(" ");
-  const description = `Fotos y videos de ${model.name}, modelo de IA${tagsText ? " — " + tagsText : ""}. Calificación ${model.rating_avg.toFixed(1)}★ (${model.rating_count}).`;
+  const description = `Fotos y videos de ${model.name}, Gratis${tagsText ? " — " + tagsText : ""}. Calificación ${model.rating_avg.toFixed(1)}★ (${model.rating_count}).`;
   const pageUrl = window.location.href;
 
   document.getElementById("meta-description").setAttribute("content", description);
@@ -94,13 +94,13 @@ async function render() {
   const content = document.getElementById("content");
 
   if (!modelId && !modelSlug) {
-    content.innerHTML = `<div class="empty-state">No se especificó un modelo.</div>`;
+    content.innerHTML = `<div class="empty-state">No se especificó una chica.</div>`;
     return;
   }
 
   const model = modelId ? await DB.getModel(modelId) : await DB.getModelBySlug(modelSlug);
   if (!model) {
-    content.innerHTML = `<div class="empty-state">No se encontró este modelo.</div>`;
+    content.innerHTML = `<div class="empty-state">No se encontró esta chica.</div>`;
     return;
   }
   modelId = model.id; // normaliza: de aquí en adelante siempre usamos el id real, venga por link viejo o por slug
@@ -125,8 +125,8 @@ async function render() {
           <span class="rating-count mono">(${model.rating_count})</span>
         </div>
         ${hasRated(modelId)
-          ? `<div class="rated-msg">Ya calificaste este modelo ✓</div>`
-          : `<div class="rate-prompt">Califica este modelo:</div>${rateStarsInteractive()}`}
+          ? `<div class="rated-msg">Ya calificaste a esta chica ✓</div>`
+          : `<div class="rate-prompt">Califica a esta chica:</div>${rateStarsInteractive()}`}
       </div>
     </div>
 
