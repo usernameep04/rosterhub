@@ -467,3 +467,31 @@ if (tagFromURL) state.tag = tagFromURL;
 
 renderTagRow();
 renderGrid();
+
+const searchSuggestionsEl = document.getElementById("search-suggestions");
+
+document.getElementById("search-input").addEventListener("input", async (e) => {
+  const query = e.target.value.trim();
+  if (!query) { searchSuggestionsEl.classList.remove("show"); return; }
+
+  const matches = await DB.listModels({ search: query });
+  const top = matches.slice(0, 6);
+  if (top.length === 0) { searchSuggestionsEl.classList.remove("show"); return; }
+
+  searchSuggestionsEl.innerHTML = top.map(m => {
+    const href = m.slug ? `/m/${encodeURIComponent(m.slug)}` : `/model.html?id=${m.id}`;
+    return `<div class="search-suggestion-item" data-href="${href}">
+      <img src="${m.cover || ''}" alt="">
+      <span>${escapeHTML(m.name)}</span>
+    </div>`;
+  }).join("");
+  searchSuggestionsEl.classList.add("show");
+
+  searchSuggestionsEl.querySelectorAll(".search-suggestion-item").forEach(item => {
+    item.addEventListener("click", () => { window.location.href = item.dataset.href; });
+  });
+});
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".search-shell")) searchSuggestionsEl.classList.remove("show");
+});
