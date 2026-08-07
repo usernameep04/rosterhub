@@ -37,7 +37,7 @@ function cardTemplate(model, rank) {
   const mediaTag = model.coverType === "video"
     ? `<video src="${model.cover}" muted playsinline loop autoplay></video>`
     : `<img class="card-photo" src="${model.cover || ''}" alt="${escapeHTML(model.name)}" loading="lazy" data-index="0" ${imagesAttr}>`;
-  const href = model.slug ? `/m/${encodeURIComponent(model.slug)}` : `model.html?id=${model.id}`;
+  const href = model.slug ? `/m/${encodeURIComponent(model.slug)}` : `/model.html?id=${model.id}`;
 
   return `
     <a class="card" href="${href}">
@@ -191,7 +191,7 @@ document.getElementById("f-name").addEventListener("input", (e) => {
     const matches = await DB.findSimilarNames(name);
     if (matches.length > 0) {
       duplicateBlocking = true;
-      const list = matches.slice(0, 3).map(m => `<a href="model.html?id=${m.id}" target="_blank">${escapeHTML(m.name)}</a>`).join(", ");
+      const list = matches.slice(0, 3).map(m => `<a href="/model.html?id=${m.id}" target="_blank">${escapeHTML(m.name)}</a>`).join(", ");
       warnEl.innerHTML = `Ya existe algo parecido: ${list}. Si es el mismo, ábrelo y agrega ahí las fotos nuevas en vez de crear otro.`;
       warnEl.classList.add("show");
     } else {
@@ -400,7 +400,7 @@ form.addEventListener("submit", async (e) => {
     showToast("Modelo publicado ✓");
     await renderTagRow();
     await renderGrid();
-    setTimeout(() => { window.location.href = `model.html?id=${id}`; }, 500);
+    setTimeout(() => { window.location.href = `/model.html?id=${id}`; }, 500);
   } catch (err) {
     console.error(err);
     errorEl.textContent = err.message || "Ocurrió un error al publicar. Intenta de nuevo.";

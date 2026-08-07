@@ -110,12 +110,12 @@ async function render() {
   updateSEOTags(model);
 
   content.innerHTML = `
-    <a href="index.html" class="back-link">← Catálogo</a>
+    <a href="/index.html" class="back-link">← Catálogo</a>
 
     <div class="detail-head">
       <div>
         <h1 class="detail-name">${escapeHTML(model.name)}</h1>
-        <div class="detail-tags">${(model.tags || []).map(t => `<a href="index.html?tag=${encodeURIComponent(t)}">#${escapeHTML(t)}</a>`).join("")}</div>
+        <div class="detail-tags">${(model.tags || []).map(t => `<a href="/index.html?tag=${encodeURIComponent(t)}">#${escapeHTML(t)}</a>`).join("")}</div>
         <div class="socials">${socialLinks(model.socials)}</div>
       </div>
       <div class="rating-block">
