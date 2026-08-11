@@ -105,7 +105,7 @@ async function render() {
   }
   modelId = model.id; // normaliza: de aquí en adelante siempre usamos el id real, venga por link viejo o por slug
 
-  document.title = `${model.name} — Roster`;
+  document.title = `${model.name} — Roster Hub`;
   currentModelName = model.name;
   updateSEOTags(model);
 
