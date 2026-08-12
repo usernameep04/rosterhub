@@ -39,6 +39,73 @@ function filterAllowedFiles(fileList) {
   return { kept, blockedVideos };
 }
 
+function drawWatermark(ctx, width, height) {
+  const markSize = Math.max(18, Math.min(40, width * 0.05));
+  const fontSize = markSize * 0.62;
+  const gap = markSize * 0.35;
+  const pad = markSize * 0.45;
+
+  ctx.save();
+  ctx.font = `700 ${fontSize}px Arial, sans-serif`;
+  const textWidth = ctx.measureText("Roster").width;
+
+  const pillW = markSize + gap + textWidth + pad * 2;
+  const pillH = markSize + pad * 0.9;
+  const pillX = width - pad * 1.6 - pillW;
+  const pillY = height - pad * 1.6 - pillH;
+  const r = pillH / 2;
+
+  // fondo translúcido, para que se lea encima de cualquier foto
+  ctx.globalAlpha = 0.55;
+  ctx.fillStyle = "#0B0E1A";
+  ctx.beginPath();
+  ctx.moveTo(pillX + r, pillY);
+  ctx.arcTo(pillX + pillW, pillY, pillX + pillW, pillY + pillH, r);
+  ctx.arcTo(pillX + pillW, pillY + pillH, pillX, pillY + pillH, r);
+  ctx.arcTo(pillX, pillY + pillH, pillX, pillY, r);
+  ctx.arcTo(pillX, pillY, pillX + pillW, pillY, r);
+  ctx.closePath();
+  ctx.fill();
+
+  // mini logo (cuadro con degradado + corte, igual que el del sitio)
+  const iconX = pillX + pad * 0.7;
+  const iconY = pillY + (pillH - markSize) / 2;
+  const ir = markSize * 0.27;
+
+  ctx.globalAlpha = 0.9;
+  const grad = ctx.createLinearGradient(iconX, iconY, iconX + markSize, iconY + markSize);
+  grad.addColorStop(0, "#7C5CFC");
+  grad.addColorStop(1, "#35D5E0");
+  ctx.beginPath();
+  ctx.moveTo(iconX + ir, iconY);
+  ctx.arcTo(iconX + markSize, iconY, iconX + markSize, iconY + markSize, ir);
+  ctx.arcTo(iconX + markSize, iconY + markSize, iconX, iconY + markSize, ir);
+  ctx.arcTo(iconX, iconY + markSize, iconX, iconY, ir);
+  ctx.arcTo(iconX, iconY, iconX + markSize, iconY, ir);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  const inset = markSize * 0.167;
+  const ix = iconX + inset, iy = iconY + inset, isz = markSize - inset * 2;
+  ctx.beginPath();
+  ctx.moveTo(ix, iy);
+  ctx.lineTo(ix + isz * 0.6, iy);
+  ctx.lineTo(ix + isz, iy + isz);
+  ctx.lineTo(ix + isz * 0.4, iy + isz);
+  ctx.closePath();
+  ctx.fillStyle = "#0B0E1A";
+  ctx.fill();
+
+  // texto "Roster"
+  ctx.globalAlpha = 0.95;
+  ctx.fillStyle = "#FFFFFF";
+  ctx.textBaseline = "middle";
+  ctx.fillText("Roster", iconX + markSize + gap, pillY + pillH / 2);
+
+  ctx.restore();
+}
+
 function compressImageFile(file) {
   return new Promise((resolve) => {
     // Los GIF se dejan igual (comprimirlos por este método rompe la animación)
@@ -56,13 +123,15 @@ function compressImageFile(file) {
       const canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
-      canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      drawWatermark(ctx, width, height);
 
       const outputType = file.type === "image/png" ? "image/png" : "image/jpeg";
 
       canvas.toBlob((blob) => {
         URL.revokeObjectURL(objectUrl);
-        if (!blob || blob.size >= file.size) { resolve(file); return; } // si no ayudó, se queda el original
+        if (!blob) { resolve(file); return; }
         resolve(new File([blob], file.name, { type: outputType, lastModified: Date.now() }));
       }, outputType, IMAGE_JPEG_QUALITY);
     };
