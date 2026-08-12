@@ -219,3 +219,32 @@ function attachRowHandlers(model) {
     });
   });
 }
+
+// ==========================================================================
+// Aplicar marca de agua a fotos ya subidas
+// ==========================================================================
+
+document.getElementById("btn-rewatermark").addEventListener("click", async () => {
+  const ok = confirm(
+    "Esto vuelve a guardar TODAS las fotos ya subidas con la marca de agua encima. " +
+    "Puede tardar varios minutos si hay muchas fotos, y no se puede deshacer. ¿Continuar?"
+  );
+  if (!ok) return;
+
+  const btn = document.getElementById("btn-rewatermark");
+  btn.disabled = true;
+
+  try {
+    await DB.rewatermarkExisting((done, total) => {
+      btn.textContent = `Marcando fotos… ${done}/${total}`;
+    });
+    showToast("Listo, se aplicó la marca de agua a las fotos existentes ✓");
+    await loadModels();
+  } catch (err) {
+    console.error(err);
+    showToast("Ocurrió un error aplicando la marca de agua.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Aplicar marca de agua a fotos existentes";
+  }
+});

@@ -306,6 +306,23 @@ const DB = (() => {
     lsSet(LS_MEDIA, lsGet(LS_MEDIA).filter(m => m.id !== mediaId));
   }
 
+  async function demoRewatermarkExisting(onProgress) {
+    const media = lsGet(LS_MEDIA);
+    const images = media.filter(m => m.type === "image");
+    for (let i = 0; i < images.length; i++) {
+      try {
+        const res = await fetch(images[i].url);
+        const blob = await res.blob();
+        const newBlob = await watermarkBlob(blob);
+        images[i].url = await blobToDataURL(newBlob);
+      } catch (err) {
+        console.error("No se pudo marcar una foto:", err);
+      }
+      if (onProgress) onProgress(i + 1, images.length);
+    }
+    lsSet(LS_MEDIA, media);
+  }
+
   // ---------- modo REAL (Supabase) ----------
   // Requiere las tablas creadas con schema.sql y un bucket "model-media".
 
@@ -445,6 +462,29 @@ const DB = (() => {
     if (paths.length) await supabase.storage.from("model-media").remove(paths).catch(() => {});
   }
 
+  async function realRewatermarkExisting(onProgress) {
+    const { data, error } = await supabase.from("model_media").select("id,url").eq("type", "image");
+    if (error) throw error;
+    const images = data || [];
+    for (let i = 0; i < images.length; i++) {
+      const m = images[i];
+      try {
+        const res = await fetch(m.url);
+        const blob = await res.blob();
+        const newBlob = await watermarkBlob(blob);
+        const path = storagePathFromUrl(m.url);
+        if (path) {
+          await supabase.storage.from("model-media").upload(path, newBlob, { upsert: true, contentType: newBlob.type });
+          const bustUrl = `${m.url.split("?")[0]}?v=${Date.now()}`;
+          await supabase.from("model_media").update({ url: bustUrl }).eq("id", m.id);
+        }
+      } catch (err) {
+        console.error("No se pudo marcar una foto:", err);
+      }
+      if (onProgress) onProgress(i + 1, images.length);
+    }
+  }
+
   // ---------- API pública ----------
 
   return {
@@ -460,5 +500,6 @@ const DB = (() => {
     updateModel: REAL_MODE ? realUpdateModel : demoUpdateModel,
     deleteModel: REAL_MODE ? realDeleteModel : demoDeleteModel,
     deleteMedia: REAL_MODE ? realDeleteMedia : demoDeleteMedia,
+    rewatermarkExisting: REAL_MODE ? realRewatermarkExisting : demoRewatermarkExisting,
   };
 })();

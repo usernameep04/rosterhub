@@ -40,7 +40,7 @@ function filterAllowedFiles(fileList) {
 }
 
 function drawWatermark(ctx, width, height) {
-  const markSize = Math.max(18, Math.min(40, width * 0.05));
+  const markSize = Math.max(24, Math.min(64, width * 0.09));
   const fontSize = markSize * 0.62;
   const gap = markSize * 0.35;
   const pad = markSize * 0.45;
@@ -56,7 +56,7 @@ function drawWatermark(ctx, width, height) {
   const r = pillH / 2;
 
   // fondo translúcido, para que se lea encima de cualquier foto
-  ctx.globalAlpha = 0.55;
+  ctx.globalAlpha = 0.68;
   ctx.fillStyle = "#0B0E1A";
   ctx.beginPath();
   ctx.moveTo(pillX + r, pillY);
@@ -147,4 +147,40 @@ async function compressFiles(files) {
     results.push(await compressImageFile(file));
   }
   return results;
+}
+
+// ---------- para aplicar la marca a fotos que YA estaban subidas ----------
+
+function blobToDataURL(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+function watermarkBlob(blob) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(blob);
+
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      drawWatermark(ctx, canvas.width, canvas.height);
+
+      canvas.toBlob((newBlob) => {
+        URL.revokeObjectURL(objectUrl);
+        if (!newBlob) { reject(new Error("No se pudo procesar la imagen.")); return; }
+        resolve(newBlob);
+      }, blob.type || "image/jpeg", IMAGE_JPEG_QUALITY);
+    };
+
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error("No se pudo cargar la imagen.")); };
+    img.src = objectUrl;
+  });
 }
