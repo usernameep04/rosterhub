@@ -46,7 +46,7 @@ function drawWatermarkPill(ctx, width, height, { markSize, opacity, anchor }) {
 
   ctx.save();
   ctx.font = `700 ${fontSize}px Arial, sans-serif`;
-  const textWidth = ctx.measureText("Roster").width;
+  const textWidth = ctx.measureText("RosterHub").width;
 
   const pillW = markSize + gap + textWidth + pad * 2;
   const pillH = markSize + pad * 0.9;
@@ -79,7 +79,7 @@ function drawWatermarkPill(ctx, width, height, { markSize, opacity, anchor }) {
     }
 
     const marginX = visibleWidth * 0.08;
-    const marginY = visibleHeight * 0.08;
+    const marginY = visibleHeight * 0.07;
     pillX = visibleRight - marginX - pillW;
     pillY = visibleBottom - marginY - pillH;
   }
@@ -130,7 +130,7 @@ function drawWatermarkPill(ctx, width, height, { markSize, opacity, anchor }) {
   ctx.globalAlpha = Math.min(1, opacity + 0.35);
   ctx.fillStyle = "#FFFFFF";
   ctx.textBaseline = "middle";
-  ctx.fillText("Roster", iconX + markSize + gap, pillY + pillH / 2);
+  ctx.fillText("RosterHub", iconX + markSize + gap, pillY + pillH / 2);
 
   ctx.restore();
 }
