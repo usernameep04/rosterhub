@@ -46,7 +46,7 @@ function drawWatermarkPill(ctx, width, height, { markSize, opacity, anchor }) {
 
   ctx.save();
   ctx.font = `700 ${fontSize}px Arial, sans-serif`;
-  const textWidth = ctx.measureText("Roster Hub").width;
+  const textWidth = ctx.measureText("Roster").width;
 
   const pillW = markSize + gap + textWidth + pad * 2;
   const pillH = markSize + pad * 0.9;
@@ -57,8 +57,10 @@ function drawWatermarkPill(ctx, width, height, { markSize, opacity, anchor }) {
     pillX = (width - pillW) / 2;
     pillY = (height - pillH) / 2;
   } else {
-    pillX = width - pad * 1.6 - pillW;
-    pillY = height - pad * 1.6 - pillH;
+    const marginX = width * 0.06;
+    const marginY = height * 0.11; // más arriba de la orilla, para que no se la coma el recorte de las tarjetas
+    pillX = width - marginX - pillW;
+    pillY = height - marginY - pillH;
   }
 
   // fondo translúcido, para que se lea encima de cualquier foto
@@ -107,7 +109,7 @@ function drawWatermarkPill(ctx, width, height, { markSize, opacity, anchor }) {
   ctx.globalAlpha = Math.min(1, opacity + 0.35);
   ctx.fillStyle = "#FFFFFF";
   ctx.textBaseline = "middle";
-  ctx.fillText("Roster Hub", iconX + markSize + gap, pillY + pillH / 2);
+  ctx.fillText("Roster", iconX + markSize + gap, pillY + pillH / 2);
 
   ctx.restore();
 }
