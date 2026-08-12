@@ -78,8 +78,8 @@ function drawWatermarkPill(ctx, width, height, { markSize, opacity, anchor }) {
       visibleRight = width - (width - visibleWidth) / 2;
     }
 
-    const marginX = visibleWidth * 0.08;
-    const marginY = visibleHeight * 0.04;
+    const marginX = visibleWidth * 0.07;
+    const marginY = visibleHeight * 0.03;
     pillX = visibleRight - marginX - pillW;
     pillY = visibleBottom - marginY - pillH;
   }
