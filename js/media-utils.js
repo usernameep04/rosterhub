@@ -39,8 +39,7 @@ function filterAllowedFiles(fileList) {
   return { kept, blockedVideos };
 }
 
-function drawWatermark(ctx, width, height) {
-  const markSize = Math.max(24, Math.min(64, width * 0.09));
+function drawWatermarkPill(ctx, width, height, { markSize, opacity, anchor }) {
   const fontSize = markSize * 0.62;
   const gap = markSize * 0.35;
   const pad = markSize * 0.45;
@@ -51,12 +50,19 @@ function drawWatermark(ctx, width, height) {
 
   const pillW = markSize + gap + textWidth + pad * 2;
   const pillH = markSize + pad * 0.9;
-  const pillX = width - pad * 1.6 - pillW;
-  const pillY = height - pad * 1.6 - pillH;
   const r = pillH / 2;
 
+  let pillX, pillY;
+  if (anchor === "center") {
+    pillX = (width - pillW) / 2;
+    pillY = (height - pillH) / 2;
+  } else {
+    pillX = width - pad * 1.6 - pillW;
+    pillY = height - pad * 1.6 - pillH;
+  }
+
   // fondo translúcido, para que se lea encima de cualquier foto
-  ctx.globalAlpha = 0.68;
+  ctx.globalAlpha = opacity;
   ctx.fillStyle = "#0B0E1A";
   ctx.beginPath();
   ctx.moveTo(pillX + r, pillY);
@@ -72,7 +78,7 @@ function drawWatermark(ctx, width, height) {
   const iconY = pillY + (pillH - markSize) / 2;
   const ir = markSize * 0.27;
 
-  ctx.globalAlpha = 0.9;
+  ctx.globalAlpha = Math.min(1, opacity + 0.3);
   const grad = ctx.createLinearGradient(iconX, iconY, iconX + markSize, iconY + markSize);
   grad.addColorStop(0, "#7C5CFC");
   grad.addColorStop(1, "#35D5E0");
@@ -98,12 +104,27 @@ function drawWatermark(ctx, width, height) {
   ctx.fill();
 
   // texto "Roster"
-  ctx.globalAlpha = 0.95;
+  ctx.globalAlpha = Math.min(1, opacity + 0.35);
   ctx.fillStyle = "#FFFFFF";
   ctx.textBaseline = "middle";
   ctx.fillText("Roster", iconX + markSize + gap, pillY + pillH / 2);
 
   ctx.restore();
+}
+
+function drawWatermark(ctx, width, height) {
+  // esquina inferior derecha (tamaño original)
+  drawWatermarkPill(ctx, width, height, {
+    markSize: Math.max(18, Math.min(40, width * 0.05)),
+    opacity: 0.55,
+    anchor: "corner",
+  });
+  // una más chica y discreta, centrada
+  drawWatermarkPill(ctx, width, height, {
+    markSize: Math.max(12, Math.min(26, width * 0.032)),
+    opacity: 0.2,
+    anchor: "center",
+  });
 }
 
 function compressImageFile(file) {
