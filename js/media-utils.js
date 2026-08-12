@@ -58,7 +58,7 @@ function drawWatermarkPill(ctx, width, height, { markSize, opacity, anchor }) {
     pillY = (height - pillH) / 2;
   } else {
     const marginX = width * 0.06;
-    const marginY = height * 0.16; // más arriba de la orilla, para que no se la coma el recorte de las tarjetas
+    const marginY = height * 0.15; // más arriba de la orilla, para que no se la coma el recorte de las tarjetas
     pillX = width - marginX - pillW;
     pillY = height - marginY - pillH;
   }
