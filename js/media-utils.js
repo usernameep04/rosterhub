@@ -46,7 +46,7 @@ function drawWatermarkPill(ctx, width, height, { markSize, opacity, anchor }) {
 
   ctx.save();
   ctx.font = `700 ${fontSize}px Arial, sans-serif`;
-  const textWidth = ctx.measureText("RosterHub").width;
+  const textWidth = ctx.measureText("Roster").width;
 
   const pillW = markSize + gap + textWidth + pad * 2;
   const pillH = markSize + pad * 0.9;
@@ -57,10 +57,31 @@ function drawWatermarkPill(ctx, width, height, { markSize, opacity, anchor }) {
     pillX = (width - pillW) / 2;
     pillY = (height - pillH) / 2;
   } else {
-    const marginX = width * 0.06;
-    const marginY = height * 0.14; // más arriba de la orilla, para que no se la coma el recorte de las tarjetas
-    pillX = width - marginX - pillW;
-    pillY = height - marginY - pillH;
+    // Las tarjetas del catálogo siempre recortan la foto a un marco
+    // vertical fijo (3:4). Calculamos qué parte de la foto original
+    // queda visible dentro de ese marco, para anclar la marca ahí
+    // siempre en el mismo lugar relativo, sin importar la forma de
+    // cada foto.
+    const targetRatio = 3 / 4;
+    const imgRatio = width / height;
+
+    let visibleWidth = width, visibleRight = width;
+    let visibleHeight = height, visibleBottom = height;
+
+    if (imgRatio < targetRatio) {
+      // la foto es más angosta que el marco -> se recorta arriba/abajo
+      visibleHeight = width / targetRatio;
+      visibleBottom = height - (height - visibleHeight) / 2;
+    } else if (imgRatio > targetRatio) {
+      // la foto es más ancha que el marco -> se recorta a los lados
+      visibleWidth = height * targetRatio;
+      visibleRight = width - (width - visibleWidth) / 2;
+    }
+
+    const marginX = visibleWidth * 0.08;
+    const marginY = visibleHeight * 0.16;
+    pillX = visibleRight - marginX - pillW;
+    pillY = visibleBottom - marginY - pillH;
   }
 
   // fondo translúcido, para que se lea encima de cualquier foto
@@ -109,7 +130,7 @@ function drawWatermarkPill(ctx, width, height, { markSize, opacity, anchor }) {
   ctx.globalAlpha = Math.min(1, opacity + 0.35);
   ctx.fillStyle = "#FFFFFF";
   ctx.textBaseline = "middle";
-  ctx.fillText("RosterHub", iconX + markSize + gap, pillY + pillH / 2);
+  ctx.fillText("Roster", iconX + markSize + gap, pillY + pillH / 2);
 
   ctx.restore();
 }
