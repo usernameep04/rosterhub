@@ -145,7 +145,7 @@ function drawWatermark(ctx, width, height) {
   // una más chica y discreta, centrada
   drawWatermarkPill(ctx, width, height, {
     markSize: Math.max(12, Math.min(26, width * 0.032)),
-    opacity: 0.1,
+    opacity: 0.05,
     anchor: "center",
   });
 }
